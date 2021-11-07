@@ -94,8 +94,6 @@ def IB(pXY, beta, p0Xhat_X, convergence_diff=1e-6, verbose=False, track_loss=Fal
             if (i+1) % 10 == 0:
                 print(f"{i+1}: {loss}")
 
-
-
     return {
         "p(Xhat|X)": pXhat_X,
         "p(Y|Xhat)": pY_Xhat,

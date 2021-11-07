@@ -1,7 +1,7 @@
 from unittest import TestCase
 import numpy as np
 import matplotlib.pyplot as plt
-from information_bottleneck import IB
+from src.information_bottleneck import IB
 
 
 class Test(TestCase):
