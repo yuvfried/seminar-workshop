@@ -8,3 +8,5 @@ Copmuting Surprise predictor of IB model to a given joint distribution of X and 
 Shows the Compression of a model (I(Xhat;X)) as a function of different N and Beta.
 * **Noise_Analysis.ipynb**:
 A Method that quantifies the quality of model fitting to a given subject. This is done by simulating EEG from theoretical surprise at different noise levels.
+* **Halflife_vs_N.ipynb**:
+Comparing the N of IB model to the halflife of Exponential Moving Average of Ridge regression.
