@@ -10,7 +10,7 @@ import os
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-n", "--noise", 
-        help="AUC noise for simulation", type=int, default=0.0)
+        help="AUC noise for simulation", type=float, default=0.0)
     args = parser.parse_args()
 
     regularization_vals = config.regularization_vals
@@ -20,5 +20,7 @@ if __name__ == "__main__":
     # save results as a df to disk
     if not os.path.exists("data"):
         os.mkdir("data")
+    if not os.path.exists("data/ib_to_decay"):
+        os.mkdir("data/ib_to_decay")
     pd.DataFrame.from_dict(d_results, orient="index").to_csv(
-        "data/convert_ib_to_decay", index=False)
+        f"data/ib_to_decay/noise={args.noise}.csv", index=False)
