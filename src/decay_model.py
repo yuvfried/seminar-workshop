@@ -5,8 +5,8 @@ import pandas as pd
 from sklearn.model_selection import GridSearchCV
 from sklearn.linear_model import Ridge
 
-from src.config import Ns, betas, halflife_vals
-from src.utils import BETA_STR
+from config import Ns, betas, halflife_vals
+from utils import BETA_STR
 
 def simulate_auc(S, sigma):
     auc = S + np.random.normal(scale=sigma, size=len(S))

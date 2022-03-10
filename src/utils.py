@@ -9,7 +9,7 @@ BETA_STR = "\u03B2"
 
 def time_print(msg):
     """
-Prints time stamp in format 'Year-month-day hour-minute-second and then msg'
+Prints timestamp in format 'Year-month-day hour-minute-second and then msg'
     :param msg:
     """
     print(datetime.now().strftime('%Y-%m-%d %X'), msg)
