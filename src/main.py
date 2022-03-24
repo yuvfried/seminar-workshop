@@ -7,12 +7,7 @@ from decay_model import convert_IB_to_decay
 import pandas as pd
 import os
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-n", "--noise", 
-        help="AUC noise for simulation", type=float, default=0.0)
-    args = parser.parse_args()
-
+def experiment(noise=0.0):
     regularization_vals = config.regularization_vals
     model_surprise_dict = load_simulation()
     d_results = convert_IB_to_decay(model_surprise_dict, regularization_vals, auc_noise=args.noise)
@@ -24,3 +19,14 @@ if __name__ == "__main__":
         os.mkdir("data/ib_to_decay")
     pd.DataFrame.from_dict(d_results, orient="index").to_csv(
         f"data/ib_to_decay/noise={args.noise}.csv", index=False)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-n", "--noise", 
+        help="AUC noise for simulation", type=float, default=0.0)
+    args = parser.parse_args()
+
+    for noise in [0.2,0.5,1.2, 1.5, 2, 3]:
+        experiment(noise=noise)
+
+
