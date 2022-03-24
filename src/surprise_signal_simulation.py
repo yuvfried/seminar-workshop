@@ -5,9 +5,15 @@ from tqdm import tqdm
 
 from config import Ns, betas
 from utils import BETA_STR
+from information_bottleneck import IB
 
 # Surprise values for a given N (rows) BETA (columns) pair
-df_surprise = pd.read_pickle("data/df_surprise.pkl")
+def load_df_surprise():
+    if os.name == "posix":
+        filename = "data/df_surprise_huji_compatible.pkl"
+    else:
+        filename = "data/df_surprise.pkl"
+    return pd.read_pickle(filename)
 
 
 def create_block(p_oddball, block_size=240, name="block", seed=123):
@@ -67,6 +73,7 @@ def surprise_signal(block, N, beta_ind, ret_as_df=True):
     """    
     ns = count_past_oddballs(block, N)
     df_block_with_count = pd.DataFrame({"block": block, "n": ns})
+    df_surprise = load_df_surprise()
     S = df_block_with_count.dropna().apply(
         lambda row: df_surprise.loc[N, beta_ind][row["block"], row["n"]], axis=1).reindex(ns.index)
     if ret_as_df:
@@ -93,6 +100,8 @@ def extract_n_beta(filename):
     return N, beta_ind
 
 def load_simulation(path=os.path.join("data", "surprise_signal_from_simulated_block")):
+    if os.listdir(path) == 0:
+        raise ValueError(f"{path} is empty")
     fnames = [os.path.join(path, f) for f in os.listdir(path)]
     model_surprise_dict = dict()
     for filename in tqdm(fnames, desc="load_simulation"):
