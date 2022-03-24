@@ -18,7 +18,7 @@ def experiment(noise=0.0):
     if not os.path.exists("data/ib_to_decay"):
         os.mkdir("data/ib_to_decay")
     pd.DataFrame.from_dict(d_results, orient="index").to_csv(
-        f"data/ib_to_decay/noise={args.noise}.csv", index=False)
+        f"data/ib_to_decay/noise={noise}.csv", index=False)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
