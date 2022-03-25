@@ -12,3 +12,5 @@ Shows the Compression of a model (I(Xhat;X)) as a function of different N and Be
 A Method that quantifies the quality of model fitting to a given subject. This is done by simulating EEG from theoretical surprise at different noise levels.
 6. **Halflife_vs_N.ipynb**:
 Comparing the N of IB model to the halflife of Exponential Moving Average of Ridge regression.
+7. **beta_vs_lambda.ipynb**:
+Comparing the beta of IB model to the lambda regularization of a fitted Ridge regression.
