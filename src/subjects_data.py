@@ -1,4 +1,4 @@
-import scipy
+import scipy.io
 import os
 import numpy as np
 import pandas as pd
