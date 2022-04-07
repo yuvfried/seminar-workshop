@@ -34,7 +34,6 @@ def read_subject_to_dict(subject_dirname):
     Args:
         name (str): name of subject. Assuming files located in 'args.path/name/'
     """
-    #  = os.path.join(PATH, name)
     files = os.listdir(subject_dirname)
     data = {"name":os.path.basename(subject_dirname)}
     for f in files:
@@ -86,7 +85,7 @@ def read_all(path):
     """
     df_subject_list = []
     for name in tqdm(os.listdir(path)):
-        data_dict = read_subject_to_dict(name)
+        data_dict = read_subject_to_dict(os.path.join(path, name))
         preprocess_subject_dict(data_dict)
         try:
             df = extract_subject_dict_to_df(data_dict)
