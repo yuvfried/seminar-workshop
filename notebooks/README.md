@@ -14,3 +14,5 @@ A Method that quantifies the quality of model fitting to a given subject. This i
 Comparing the N of IB model to the halflife of Exponential Moving Average of Ridge regression.
 7. **beta_vs_lambda.ipynb**:
 Comparing the beta of IB model to the lambda regularization of a fitted Ridge regression.
+8. **apply_decay_model_real_data.ipynb**
+Apply decay model to subjects data.
