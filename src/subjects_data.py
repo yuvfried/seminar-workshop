@@ -88,10 +88,16 @@ def read_all(path):
         data_dict = read_subject_to_dict(os.path.join(path, name))
         preprocess_subject_dict(data_dict)
         try:
-            df = extract_subject_dict_to_df(data_dict)
-            df_subject_list.append(df)
+            df_subject = extract_subject_dict_to_df(data_dict)
+            df_subject_list.append(df_subject)
         except Exception as e:
             print(f"Exception in {name}:\n{str(e)}")
     
-    return pd.concat(df_subject_list)
+    df = pd.concat(df_subject_list)
+    return df
+
+def preprocess_data(data:pd.DataFrame) -> pd.DataFrame:
+    data["block"] = data["block"].map({0.0:1.0, 1.0:0.0})   # inverse oddball sign
+    data["auc_normal"] = data["auc"] / data["normal_factor"]    # normalize AUC
+    return data
         

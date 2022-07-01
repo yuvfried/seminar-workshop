@@ -11,4 +11,27 @@ halflife_vals = Ns
 regularization_vals = np.linspace(0, 2, num=20)
 
 # noises
-noises = np.linspace(0,1, num=11).tolist() + [1.5,2,3,5]
+# noises = np.linspace(0.01,.09, num=9).round(2).tolist()
+noises = [0.0, 0.001, 0.01, 0.1, 0.5, 0.1, 1, 3, 5]
+
+# subjects_data
+
+subjects_order = [
+    'AT',
+    'CK',
+    'ES',
+    'EW',
+    'GG',
+    'HLA',
+    'IG',
+    'LV',
+    'MH',
+    'MN',
+    'MZ',
+    'RS',
+    'SG',
+    'SM',
+    'SN',
+    'YF',
+    'ZD'
+    ]

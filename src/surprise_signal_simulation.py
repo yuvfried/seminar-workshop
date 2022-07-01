@@ -1,11 +1,13 @@
 import numpy as np
 import pandas as pd
 import os
-from tqdm import tqdm
+from tqdm.auto import tqdm
 
 from config import Ns, betas
 from utils import BETA_STR
 from information_bottleneck import IB
+
+global_np_seed_generator = np.random.default_rng(seed=123)
 
 # Surprise values for a given N (rows) BETA (columns) pair
 def load_df_surprise():
@@ -16,7 +18,7 @@ def load_df_surprise():
     return pd.read_pickle(filename)
 
 
-def create_block(p_oddball, block_size=240, name="block", seed=123):
+def create_block(p_oddball, block_size=240, name="block"):
     """Generate a random oddball block with p_oddball for oddball sound 
     (1) and 1-p for a frequent sound (0).
 
@@ -29,10 +31,10 @@ def create_block(p_oddball, block_size=240, name="block", seed=123):
     Returns:
         pd.Series: Series represents the block
     """    
-    np.random.seed(seed)
     # sequence of frequent/oddball sounds
-    block = np.random.choice([0, 1], p=[1 - p_oddball, p_oddball], size=block_size).astype(int)
-    return pd.Series(block, name=name)
+    block = global_np_seed_generator.choice([0, 1], p=[1 - p_oddball, p_oddball], size=block_size).astype(int)
+    # return pd.Series(block, name=name) depracated
+    return block
 
 
 def count_past_oddballs(block, N, pad=True):
@@ -81,16 +83,22 @@ def surprise_signal(block, N, beta_ind, ret_as_df=True):
         return df_block_with_count
     return S
 
-def simulate(path=os.path.join("data", "surprise_signal_from_simulated_block"), seed=0):
+def simulate(path, noise=0.0):
+    # mkdir if not exists
+    if not os.path.exists(path):
+        os.mkdir(path)
+    
     # concatenate 5 blocks with different p_oddball
     p_oddballs = np.arange(0.1, 0.6, step=0.1)
-    blocks = [create_block(p) for p in p_oddballs]
-    block = np.concatenate(blocks)
+    block = np.concatenate([create_block(p) for p in p_oddballs])
+    global_np_seed_generator.shuffle(block)
 
     # calculate surprise signals for each model.
     for N in tqdm(Ns, desc="N"):
         for beta_ind in tqdm(np.arange(len(betas)), desc=BETA_STR, leave=False):
             df_model = surprise_signal(block, N, beta_ind, ret_as_df=True)
+            # depracated see comment below in 'add_noise' function
+            # df_model["S"] += add_noise(df_model["S"], sigma=noise)
             df_model.to_parquet(os.path.join(path, f"n={N:02d}b={beta_ind:02d}.snappy.parquet"))
 
 
@@ -98,6 +106,11 @@ def extract_n_beta(filename):
     name = os.path.splitext(os.path.basename(filename))[0]
     N, beta_ind = int(name[2:4]), int(name[6:8])
     return N, beta_ind
+
+# Depraceated - noise should be outside this module, as it is the last step of the simulation and there is no other thing here that depend on it
+# Currently is is in decay modek in function fit h to n...
+# def add_noise(block: pd.Series, sigma: float = 0.0):
+#     return block + global_np_seed_generator.normal(loc=sigma, size=len(block))
 
 def load_simulation(path=os.path.join("data", "surprise_signal_from_simulated_block")):
     if os.listdir(path) == 0:
