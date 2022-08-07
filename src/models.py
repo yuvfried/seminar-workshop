@@ -21,17 +21,7 @@ class BaseModel():
     def score(self, *args):
         raise NotImplementedError
         
-
-# Surprise values for a given N (rows) BETA (columns) pair
-def load_IB_df_surprise():
-    if os.name == "posix":
-        filename = "data/df_surprise_huji_compatible.pkl"
-    else:
-        filename = "data/df_surprise.pkl"
-    return pd.read_pickle(filename)
-
 class IBModel(BaseModel):
-    df_surprise = load_IB_df_surprise()
 
     def __init__(self, N, beta) -> None:
         super().__init__()
@@ -87,10 +77,6 @@ class IBModel(BaseModel):
         super().surprise_predictor(sequence)
         ns = self.count_past_oddballs(sequence, pad=False).astype(np.int32)
         pad = np.full(self.N, np.nan)
-        # df_seq_with_count = pd.DataFrame({"sequence": sequence, "n": ns})
-        # S = df_seq_with_count.dropna().apply(
-        #     lambda row: self.df_surprise.loc[self.N, self.beta][
-        #         int(row["sequence"]), int(row["n"])], axis=1).reindex(ns.index)
         surprise = [self.S[t,n] for t, n in zip(sequence[self.N:], ns)]
         surprise = np.concatenate((pad, surprise))
         return surprise
