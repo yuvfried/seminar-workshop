@@ -4,8 +4,6 @@ import json
 import os
 import numpy as np
 import pandas as pd
-from sklearn.metrics import r2_score
-from torch import Argument
 from tqdm.auto import tqdm
 
 from config import halflife_vals, Ns, betas, noises
@@ -13,21 +11,24 @@ from models import IBModel
 from models import DecayModel
 from utils import BETA_STR
 from sequence_simulation import create_sequence
-from ib_surprise import all_IB_surprise_predictors_to_sequence
-from decay_model import explanatory_variables, fit_tau_to_brain_response
 
 
 def time_print(msg):
     return print(datetime.now().strftime("%H:%M:%S"), msg)
 
 def fit_tau_to_sequence(sequence, response):
+    sequence, response = [arr[Ns.max():] for arr in [sequence, response]] # drop 50 firsts as they come from IB surprise
     best_tau = -1
     best_r2 = -1
     for tau in tqdm(halflife_vals, desc="tau", leave=False):
         model = DecayModel(tau)
         model.fit(response, sequence)
-        X = model.explanatory_variables(sequence)
-        r2_score = model.score(X, response[1:])
+        surprise = model.surprise_predictor(sequence)
+        weights = model.empiric_weights(sequence, num_bins=30)
+        try:
+            r2_score = model.r2(response, surprise, weights)
+        except np.linalg.LinAlgError:
+            continue
         if r2_score > best_r2:
             best_r2 = r2_score
             best_tau = tau
@@ -46,8 +47,8 @@ if __name__=="__main__":
         print("dry run")
         exp_path = os.path.join("data", "dry_exp")
         os.makedirs(exp_path, exist_ok=True)
-        Ns = range(1, 11)
-        betas = range(1,6)
+        Ns = np.arange(1, 11)
+        betas = np.arange(1,6)
     else:
         exp_path = os.path.join("data", args.name)
         if os.path.exists(exp_path) and not args.override:
@@ -70,9 +71,7 @@ if __name__=="__main__":
         beta_surprise_dict = dict()
         for beta_ind in tqdm(range(len(betas)), desc=BETA_STR, leave=False):
             model = IBModel(N, beta_ind)
-            pXY = model.calculate_pXY(N)
-            Xhat_X = model.init_pXhat_X(N)
-            model.fit(pXY, Xhat_X)
+            model.fit()
             surprise = model.surprise_predictor(sequence)
             beta_surprise_dict[beta_ind] = surprise.tolist()
         
@@ -99,11 +98,9 @@ if __name__=="__main__":
                     "r2":best_r2, 
                     "tau":best_tau}
                 )
+    # save
     N_tau_relationship = pd.DataFrame.from_records(records)
     N_tau_relationship = N_tau_relationship.astype({col:np.int8 for col in ["N", "beta_ind", "tau"]})
     N_tau_relationship.to_parquet(
         os.path.join(exp_path, "N_tau_relationship"), partition_cols=["N", "beta_ind"])
-    
-    
-    time_print("Done")
     
